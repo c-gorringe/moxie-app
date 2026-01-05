@@ -1,0 +1,95 @@
+// This is your Prisma schema file
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  name          String
+  tagline       String?
+  profileImage  String?
+  phone         String?
+  team          String   // e.g., "Las Vegas, North"
+  region        String   // e.g., "Nevada"
+  joinedDate    DateTime
+  isActive      Boolean  @default(true)
+  lastActive    DateTime?
+
+  sales         Sale[]
+  commissions   Commission[]
+  accolades     Accolade[]
+  withholdingLimit WithholdingLimit?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Sale {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date          DateTime
+  revenue       Decimal  @db.Decimal(10, 2)
+  accountsSold  Int      @default(1)
+  isCanceled    Boolean  @default(false)
+  isInstall     Boolean  @default(false)
+
+  commissions   Commission[]
+
+  createdAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Commission {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  saleId            String?
+  sale              Sale?    @relation(fields: [saleId], references: [id])
+  date              DateTime
+  accountsSold      Int
+  earnedAmount      Decimal  @db.Decimal(10, 2)
+  paidAmount        Decimal  @default(0) @db.Decimal(10, 2)
+  withheldAmount    Decimal  @default(0) @db.Decimal(10, 2)
+  payPeriodStart    DateTime
+  payPeriodEnd      DateTime
+  isPaid            Boolean  @default(false)
+
+  createdAt         DateTime @default(now())
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Accolade {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String   // e.g., "2024 Most Improved"
+  year        Int
+  icon        String?
+
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+}
+
+model WithholdingLimit {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  currentAmount   Decimal  @default(0) @db.Decimal(10, 2)
+  limitAmount     Decimal  @default(3000) @db.Decimal(10, 2)
+  resetDate       DateTime?
+
+  updatedAt       DateTime @updatedAt
+}
