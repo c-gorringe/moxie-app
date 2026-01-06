@@ -49,8 +49,16 @@ export default function MyProfilePage() {
   const fetchProfile = async () => {
     setLoading(true)
     try {
-      // Using Jake Allen's ID for demo - in real app this would be current user
-      const userId = 'cmk2ta7ea0001f3ry1oi7qusb'
+      // Get first user from performance API, then fetch their profile
+      console.log('Fetching current user...')
+      const perfResponse = await fetch('/api/performance')
+      const perfData = await perfResponse.json()
+      const userId = perfData.user?.id
+
+      if (!userId) {
+        throw new Error('No user found')
+      }
+
       console.log('Fetching profile for user:', userId)
       const response = await fetch(`/api/users/${userId}`)
       console.log('Response status:', response.status)

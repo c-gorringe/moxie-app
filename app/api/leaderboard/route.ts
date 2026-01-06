@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
     const stateFilter = searchParams.get('state') || 'all'
     const rankType = searchParams.get('rankType') || 'individual'
 
-    // Calculate date range (using 2026-01-06 as current date to match seed data)
-    const now = new Date('2026-01-06')
-    let startDate = new Date('2026-01-06')
+    // Calculate date range
+    const now = new Date()
+    let startDate = new Date()
 
     switch (dateFilter) {
       case 'today':

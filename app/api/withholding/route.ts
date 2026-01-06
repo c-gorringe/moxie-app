@@ -4,7 +4,13 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId') || 'cmk2ta7ea0001f3ry1oi7qusb' // Default to Jake Allen
+    let userId = searchParams.get('userId')
+
+    // If no userId provided, get first user from database
+    if (!userId) {
+      const firstUser = await prisma.user.findFirst({ orderBy: { name: 'asc' } })
+      userId = firstUser?.id || ''
+    }
 
     const commissions = await prisma.commission.findMany({
       where: { userId },

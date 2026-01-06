@@ -4,12 +4,18 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const userId = searchParams.get('userId') || 'cmk2ta7ea0001f3ry1oi7qusb' // Default to Jake Allen
+    let userId = searchParams.get('userId')
     const dateFilter = searchParams.get('date') || 'today'
 
-    // Calculate date range (using 2026-01-06 as current date to match seed data)
-    const now = new Date('2026-01-06')
-    let startDate = new Date('2026-01-06')
+    // If no userId provided, get first user from database
+    if (!userId) {
+      const firstUser = await prisma.user.findFirst({ orderBy: { name: 'asc' } })
+      userId = firstUser?.id || ''
+    }
+
+    // Calculate date range
+    const now = new Date()
+    let startDate = new Date()
 
     switch (dateFilter) {
       case 'today':
