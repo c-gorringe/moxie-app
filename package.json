@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts",
+    "db:seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-extended.ts",
     "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed-extended.ts"
   },
   "keywords": [],
   "author": "",
