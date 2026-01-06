@@ -13,7 +13,7 @@ const menuItems = [
   { name: 'Performance', href: '/performance', icon: '📊' },
   { name: 'Watchlist', href: '/watchlist', icon: '👁️' },
   { name: 'Commission', href: '/commission', icon: '💰' },
-  { name: 'Profiles', href: '/profile/current', icon: '👤' },
+  { name: 'My Profile', href: '/profile/me', icon: '👤' },
   { name: 'Settings', href: '/settings', icon: '⚙️' },
 ]
 

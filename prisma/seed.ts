@@ -5,15 +5,16 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding database...')
 
-  // Create users
+  // Create users from different states and regions
   const users = await Promise.all([
+    // Nevada - West Region
     prisma.user.create({
       data: {
         email: 'caleb@moxie.com',
         name: 'Caleb Gorringe',
         tagline: 'Top performer 2024',
-        team: 'Las Vegas, North',
-        region: 'Nevada',
+        team: 'Las Vegas North, NV',
+        region: 'West',
         joinedDate: new Date('2023-01-15'),
         isActive: true,
         lastActive: new Date(),
@@ -24,8 +25,8 @@ async function main() {
         email: 'cole@moxie.com',
         name: 'Cole Gorringe',
         tagline: 'No time for bagels',
-        team: 'Las Vegas, South',
-        region: 'Nevada',
+        team: 'Las Vegas South, NV',
+        region: 'West',
         joinedDate: new Date('2023-03-20'),
         isActive: true,
         lastActive: new Date(Date.now() - 2 * 60 * 1000), // 2 min ago
@@ -33,47 +34,26 @@ async function main() {
     }),
     prisma.user.create({
       data: {
-        email: 'brock@moxie.com',
-        name: 'Brock Barton',
-        tagline: 'Closing deals daily',
-        team: 'Las Vegas, North',
-        region: 'Nevada',
-        joinedDate: new Date('2022-11-10'),
-        isActive: false,
-      },
-    }),
-    prisma.user.create({
-      data: {
         email: 'jake@moxie.com',
         name: 'Jake Allen',
         tagline: 'Always hustling',
-        team: 'Reno',
-        region: 'Nevada',
+        team: 'Reno, NV',
+        region: 'West',
         joinedDate: new Date('2023-04-20'),
         isActive: true,
         lastActive: new Date(),
       },
     }),
+
+    // California - West Region
     prisma.user.create({
       data: {
-        email: 'sarah@moxie.com',
-        name: 'Sarah Hernandez',
-        tagline: 'New but determined',
-        team: 'Henderson',
-        region: 'Nevada',
-        joinedDate: new Date('2024-01-05'),
-        isActive: true,
-        lastActive: new Date(),
-      },
-    }),
-    prisma.user.create({
-      data: {
-        email: 'justin@moxie.com',
-        name: 'Justin Bodden',
-        tagline: 'Record breaker',
-        team: 'Las Vegas, West',
-        region: 'Nevada',
-        joinedDate: new Date('2022-08-15'),
+        email: 'brock@moxie.com',
+        name: 'Brock Barton',
+        tagline: 'Closing deals daily',
+        team: 'Los Angeles, CA',
+        region: 'West',
+        joinedDate: new Date('2022-11-10'),
         isActive: true,
         lastActive: new Date(),
       },
@@ -83,8 +63,8 @@ async function main() {
         email: 'whitney@moxie.com',
         name: 'Whitney Smith',
         tagline: 'Customer first',
-        team: 'Sparks',
-        region: 'Nevada',
+        team: 'San Francisco, CA',
+        region: 'West',
         joinedDate: new Date('2023-06-12'),
         isActive: true,
         lastActive: new Date(),
@@ -95,20 +75,48 @@ async function main() {
         email: 'emily@moxie.com',
         name: 'Emily Statton',
         tagline: 'Consistent performer',
-        team: 'Las Vegas, East',
-        region: 'Nevada',
+        team: 'San Diego, CA',
+        region: 'West',
         joinedDate: new Date('2023-02-28'),
+        isActive: true,
+        lastActive: new Date(),
+      },
+    }),
+
+    // Arizona - Southwest Region
+    prisma.user.create({
+      data: {
+        email: 'sarah@moxie.com',
+        name: 'Sarah Hernandez',
+        tagline: 'New but determined',
+        team: 'Phoenix, AZ',
+        region: 'Southwest',
+        joinedDate: new Date('2024-01-05'),
         isActive: true,
         lastActive: new Date(),
       },
     }),
     prisma.user.create({
       data: {
+        email: 'justin@moxie.com',
+        name: 'Justin Bodden',
+        tagline: 'Record breaker',
+        team: 'Tucson, AZ',
+        region: 'Southwest',
+        joinedDate: new Date('2022-08-15'),
+        isActive: true,
+        lastActive: new Date(),
+      },
+    }),
+
+    // Texas - Southwest Region
+    prisma.user.create({
+      data: {
         email: 'holden@moxie.com',
         name: 'Holden Anderson',
         tagline: 'Rising star',
-        team: 'Carson City',
-        region: 'Nevada',
+        team: 'Austin, TX',
+        region: 'Southwest',
         joinedDate: new Date('2023-09-10'),
         isActive: true,
         lastActive: new Date(),
@@ -119,9 +127,61 @@ async function main() {
         email: 'matt@moxie.com',
         name: 'Matt Moran',
         tagline: 'Steady and reliable',
-        team: 'Elko',
-        region: 'Nevada',
+        team: 'Dallas, TX',
+        region: 'Southwest',
         joinedDate: new Date('2022-12-01'),
+        isActive: true,
+        lastActive: new Date(),
+      },
+    }),
+
+    // New York - Northeast Region
+    prisma.user.create({
+      data: {
+        email: 'alex@moxie.com',
+        name: 'Alex Rivera',
+        tagline: 'NYC hustle',
+        team: 'Manhattan, NY',
+        region: 'Northeast',
+        joinedDate: new Date('2023-07-15'),
+        isActive: true,
+        lastActive: new Date(),
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'maya@moxie.com',
+        name: 'Maya Chen',
+        tagline: 'Results driven',
+        team: 'Brooklyn, NY',
+        region: 'Northeast',
+        joinedDate: new Date('2023-05-20'),
+        isActive: true,
+        lastActive: new Date(),
+      },
+    }),
+
+    // Florida - Southeast Region
+    prisma.user.create({
+      data: {
+        email: 'james@moxie.com',
+        name: 'James Wilson',
+        tagline: 'Sunshine sales',
+        team: 'Miami, FL',
+        region: 'Southeast',
+        joinedDate: new Date('2023-02-10'),
+        isActive: true,
+        lastActive: new Date(),
+      },
+    }),
+    prisma.user.create({
+      data: {
+        email: 'olivia@moxie.com',
+        name: 'Olivia Martinez',
+        tagline: 'Dream closer',
+        team: 'Orlando, FL',
+        region: 'Southeast',
+        joinedDate: new Date('2023-08-25'),
         isActive: true,
         lastActive: new Date(),
       },
@@ -133,16 +193,20 @@ async function main() {
   // Create sales for today
   const today = new Date()
   const salesData = [
-    { userId: users[0].id, count: 12, revenue: 3600 }, // Caleb - 12 sales
-    { userId: users[1].id, count: 10, revenue: 2800 }, // Cole - 10 sales
-    { userId: users[2].id, count: 10, revenue: 2900 }, // Brock - 10 sales
-    { userId: users[3].id, count: 4, revenue: 2150 },  // Jake - 4 sales
-    { userId: users[4].id, count: 1, revenue: 450 },   // Sarah - 1 sale
-    { userId: users[5].id, count: 9, revenue: 2700 },  // Justin - 9 sales
-    { userId: users[6].id, count: 6, revenue: 1800 },  // Whitney - 6 sales
-    { userId: users[7].id, count: 6, revenue: 1750 },  // Emily - 6 sales
-    { userId: users[8].id, count: 4, revenue: 1200 },  // Holden - 4 sales
-    { userId: users[9].id, count: 1, revenue: 300 },   // Matt - 1 sale
+    { userId: users[0].id, count: 12, revenue: 3600 }, // Caleb - Las Vegas (West)
+    { userId: users[1].id, count: 10, revenue: 2800 }, // Cole - Las Vegas (West)
+    { userId: users[2].id, count: 4, revenue: 2150 },  // Jake - Reno (West)
+    { userId: users[3].id, count: 10, revenue: 2900 }, // Brock - LA (West)
+    { userId: users[4].id, count: 6, revenue: 1800 },  // Whitney - SF (West)
+    { userId: users[5].id, count: 6, revenue: 1750 },  // Emily - San Diego (West)
+    { userId: users[6].id, count: 1, revenue: 450 },   // Sarah - Phoenix (Southwest)
+    { userId: users[7].id, count: 9, revenue: 2700 },  // Justin - Tucson (Southwest)
+    { userId: users[8].id, count: 4, revenue: 1200 },  // Holden - Austin (Southwest)
+    { userId: users[9].id, count: 1, revenue: 300 },   // Matt - Dallas (Southwest)
+    { userId: users[10].id, count: 8, revenue: 2400 }, // Alex - Manhattan (Northeast)
+    { userId: users[11].id, count: 7, revenue: 2100 }, // Maya - Brooklyn (Northeast)
+    { userId: users[12].id, count: 5, revenue: 1500 }, // James - Miami (Southeast)
+    { userId: users[13].id, count: 3, revenue: 900 },  // Olivia - Orlando (Southeast)
   ]
 
   let totalSales = 0

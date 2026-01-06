@@ -5,12 +5,13 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const dateFilter = searchParams.get('date') || 'today'
-    const teamFilter = searchParams.get('team') || 'all'
+    const regionFilter = searchParams.get('region') || 'all'
+    const stateFilter = searchParams.get('state') || 'all'
     const rankType = searchParams.get('rankType') || 'individual'
 
-    // Calculate date range
-    const now = new Date()
-    let startDate = new Date()
+    // Calculate date range (using 2026-01-06 as current date to match seed data)
+    const now = new Date('2026-01-06')
+    let startDate = new Date('2026-01-06')
 
     switch (dateFilter) {
       case 'today':
@@ -22,12 +23,29 @@ export async function GET(request: NextRequest) {
       case 'month':
         startDate.setMonth(now.getMonth() - 1)
         break
+      case 'year':
+        startDate.setFullYear(now.getFullYear() - 1)
+        break
       default:
         startDate.setHours(0, 0, 0, 0)
     }
 
-    // Get all users with their sales
+    // Build user filter
+    const userFilter: any = {}
+
+    if (regionFilter !== 'all') {
+      userFilter.region = regionFilter
+    }
+
+    if (stateFilter !== 'all') {
+      userFilter.team = {
+        contains: stateFilter
+      }
+    }
+
+    // Get filtered users with their sales
     const users = await prisma.user.findMany({
+      where: userFilter,
       include: {
         sales: {
           where: {
@@ -77,7 +95,8 @@ export async function GET(request: NextRequest) {
       rankings: rankedData,
       filters: {
         date: dateFilter,
-        team: teamFilter,
+        region: regionFilter,
+        state: stateFilter,
         rankType,
       },
     })

@@ -28,19 +28,21 @@ export default function LeaderboardPage() {
   const [data, setData] = useState<LeaderboardData | null>(null)
   const [loading, setLoading] = useState(true)
   const [dateFilter, setDateFilter] = useState('today')
-  const [teamFilter, setTeamFilter] = useState('all')
+  const [regionFilter, setRegionFilter] = useState('all')
+  const [stateFilter, setStateFilter] = useState('all')
   const [rankType, setRankType] = useState('individual')
 
   useEffect(() => {
     fetchLeaderboard()
-  }, [dateFilter, teamFilter, rankType])
+  }, [dateFilter, regionFilter, stateFilter, rankType])
 
   const fetchLeaderboard = async () => {
     setLoading(true)
     try {
       const params = new URLSearchParams({
         date: dateFilter,
-        team: teamFilter,
+        region: regionFilter,
+        state: stateFilter,
         rankType,
       })
       const response = await fetch(`/api/leaderboard?${params}`)
@@ -87,26 +89,17 @@ export default function LeaderboardPage() {
         )}
 
         {/* Filters */}
-        <div className="bg-white rounded-lg p-4 shadow-sm">
-          <div className="grid grid-cols-3 gap-3">
+        <div className="bg-white rounded-lg p-4 shadow-sm space-y-3">
+          {/* Row 1: Date and Rank Type */}
+          <div className="grid grid-cols-2 gap-3">
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-moxie-primary"
             >
-              <option value="today">Today</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-            </select>
-
-            <select
-              value={teamFilter}
-              onChange={(e) => setTeamFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-moxie-primary"
-            >
-              <option value="all">All Teams</option>
-              <option value="region">Region</option>
-              <option value="state">State</option>
+              <option value="today">📅 Today</option>
+              <option value="week">📅 Week</option>
+              <option value="month">📅 Month</option>
             </select>
 
             <select
@@ -114,8 +107,37 @@ export default function LeaderboardPage() {
               onChange={(e) => setRankType(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-moxie-primary"
             >
-              <option value="individual">Individual</option>
-              <option value="team">Team</option>
+              <option value="individual">👤 Individual</option>
+              <option value="team">👥 Team</option>
+            </select>
+          </div>
+
+          {/* Row 2: Region and State */}
+          <div className="grid grid-cols-2 gap-3">
+            <select
+              value={regionFilter}
+              onChange={(e) => setRegionFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-moxie-primary"
+            >
+              <option value="all">🌎 All Regions</option>
+              <option value="West">West</option>
+              <option value="Southwest">Southwest</option>
+              <option value="Northeast">Northeast</option>
+              <option value="Southeast">Southeast</option>
+            </select>
+
+            <select
+              value={stateFilter}
+              onChange={(e) => setStateFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-moxie-primary"
+            >
+              <option value="all">📍 All States</option>
+              <option value="NV">Nevada</option>
+              <option value="CA">California</option>
+              <option value="AZ">Arizona</option>
+              <option value="TX">Texas</option>
+              <option value="NY">New York</option>
+              <option value="FL">Florida</option>
             </select>
           </div>
         </div>

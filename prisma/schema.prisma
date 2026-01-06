@@ -5,7 +5,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -36,7 +36,7 @@ model Sale {
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   date          DateTime
-  revenue       Decimal  @db.Decimal(10, 2)
+  revenue       Decimal
   accountsSold  Int      @default(1)
   isCanceled    Boolean  @default(false)
   isInstall     Boolean  @default(false)
@@ -57,9 +57,9 @@ model Commission {
   sale              Sale?    @relation(fields: [saleId], references: [id])
   date              DateTime
   accountsSold      Int
-  earnedAmount      Decimal  @db.Decimal(10, 2)
-  paidAmount        Decimal  @default(0) @db.Decimal(10, 2)
-  withheldAmount    Decimal  @default(0) @db.Decimal(10, 2)
+  earnedAmount      Decimal
+  paidAmount        Decimal  @default(0)
+  withheldAmount    Decimal  @default(0)
   payPeriodStart    DateTime
   payPeriodEnd      DateTime
   isPaid            Boolean  @default(false)
@@ -87,8 +87,8 @@ model WithholdingLimit {
   id              String   @id @default(cuid())
   userId          String   @unique
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  currentAmount   Decimal  @default(0) @db.Decimal(10, 2)
-  limitAmount     Decimal  @default(3000) @db.Decimal(10, 2)
+  currentAmount   Decimal  @default(0)
+  limitAmount     Decimal  @default(3000)
   resetDate       DateTime?
 
   updatedAt       DateTime @updatedAt
