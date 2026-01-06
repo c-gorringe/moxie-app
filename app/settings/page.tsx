@@ -1,14 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import MobileHeader from '@/components/layout/MobileHeader'
 
 export default function SettingsPage() {
   const [settings, setSettings] = useState({
     // Account
-    name: 'Jake Allen',
-    email: 'jake@moxie.com',
-    phone: '(702) 555-0123',
+    name: '',
+    email: '',
+    phone: '',
 
     // Notifications
     emailNotifications: true,
@@ -26,7 +26,39 @@ export default function SettingsPage() {
     shareStats: true,
   })
 
+  const [loading, setLoading] = useState(true)
   const [activeSection, setActiveSection] = useState<'account' | 'notifications' | 'display' | 'privacy'>('account')
+
+  // Fetch current user's data
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userId = localStorage.getItem('currentUserId')
+      if (!userId) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`/api/users/${userId}`)
+        const data = await response.json()
+
+        if (data.user) {
+          setSettings(prev => ({
+            ...prev,
+            name: data.user.name || '',
+            email: data.user.email || '',
+            phone: data.user.phone || '',
+          }))
+        }
+      } catch (error) {
+        console.error('Failed to fetch user data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchUserData()
+  }, [])
 
   const handleToggle = (key: string) => {
     setSettings(prev => ({
@@ -38,6 +70,17 @@ export default function SettingsPage() {
   const handleSave = () => {
     // TODO: Save to API
     alert('Settings saved! (This would save to the API)')
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <MobileHeader />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-moxie-primary"></div>
+        </div>
+      </div>
+    )
   }
 
   return (
