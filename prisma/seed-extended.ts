@@ -202,9 +202,9 @@ async function main() {
 
   console.log(`✅ Created ${users.length} users`)
 
-  // Date ranges
-  const today = new Date('2026-01-06') // Current date
-  const decemberStart = new Date('2024-12-01')
+  // Date ranges - use actual current date
+  const today = new Date() // Current date
+  const decemberStart = new Date(today.getFullYear(), today.getMonth() - 1, 1) // Last month
   const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
 
   // Generate sales data from December to today
