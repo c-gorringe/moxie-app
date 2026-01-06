@@ -41,8 +41,10 @@ export default function PerformancePage() {
   const fetchPerformance = async () => {
     setLoading(true)
     try {
-      // Fetch without userId - API will get first user from database
+      // Get current user from localStorage
+      const userId = localStorage.getItem('currentUserId') || ''
       const params = new URLSearchParams({
+        userId: userId,
         date: dateFilter,
       })
       const response = await fetch(`/api/performance?${params}`)
