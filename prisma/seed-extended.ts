@@ -229,8 +229,8 @@ async function main() {
       })
     }
 
-    // Add more sales for today specifically (3-8 sales today)
-    const todaySales = randomInt(3, 8)
+    // Add more sales for today specifically (8-15 sales today to ensure visible data)
+    const todaySales = randomInt(8, 15)
     for (let i = 0; i < todaySales; i++) {
       const todayTime = new Date(today)
       todayTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
@@ -245,6 +245,27 @@ async function main() {
         isCanceled: isCanceled,
         isInstall: !isCanceled && Math.random() < 0.8,
       })
+    }
+
+    // Add even more sales for this week (5-10 per day for last 7 days)
+    for (let dayOffset = 1; dayOffset <= 7; dayOffset++) {
+      const weekSales = randomInt(5, 10)
+      for (let i = 0; i < weekSales; i++) {
+        const weekDate = new Date(today)
+        weekDate.setDate(today.getDate() - dayOffset)
+        weekDate.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
+
+        const revenue = randomInt(50, 300)
+        const isCanceled = Math.random() < 0.15
+
+        allSales.push({
+          userId: user.id,
+          date: weekDate,
+          revenue: revenue,
+          isCanceled: isCanceled,
+          isInstall: !isCanceled && Math.random() < 0.7,
+        })
+      }
     }
   }
 
