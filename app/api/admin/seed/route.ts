@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     // Date ranges
     const today = new Date()
-    const endOfJanuary = new Date(2026, 0, 31, 23, 59, 59)
+    today.setHours(23, 59, 59, 999) // End of today
     const decemberStart = new Date(today.getFullYear(), today.getMonth() - 1, 1)
     const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
 
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     for (const user of users) {
       const currentDate = new Date(decemberStart)
 
-      while (currentDate <= endOfJanuary) {
+      while (currentDate <= today) {
         const isDemoWeek = currentDate.getFullYear() === 2026 &&
                           currentDate.getMonth() === 0 &&
                           currentDate.getDate() >= 18 &&

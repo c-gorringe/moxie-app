@@ -202,20 +202,20 @@ async function main() {
 
   console.log(`✅ Created ${users.length} users`)
 
-  // Date ranges - generate data through end of January 2026 for demo
+  // Date ranges - generate data through today
   const today = new Date() // Current date
-  const endOfJanuary = new Date(2026, 0, 31, 23, 59, 59) // January 31, 2026
+  today.setHours(23, 59, 59, 999) // End of today
   const decemberStart = new Date(today.getFullYear(), today.getMonth() - 1, 1) // Last month
   const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-  // Generate sales data from December through end of January
+  // Generate sales data from December through today
   const allSales = []
 
   for (const user of users) {
-    // Generate consistent daily sales for every day from Dec 1 through Jan 31
+    // Generate consistent daily sales for every day from Dec 1 through today
     const currentDate = new Date(decemberStart)
 
-    while (currentDate <= endOfJanuary) {
+    while (currentDate <= today) {
       // Determine if this is a demo week day (Jan 18-24)
       const isDemoWeek = currentDate.getFullYear() === 2026 &&
                         currentDate.getMonth() === 0 &&
