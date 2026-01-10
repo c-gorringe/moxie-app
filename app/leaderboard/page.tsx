@@ -31,10 +31,33 @@ export default function LeaderboardPage() {
   const [regionFilter, setRegionFilter] = useState('all')
   const [stateFilter, setStateFilter] = useState('all')
   const [rankType, setRankType] = useState('individual')
+  const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set())
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+
+  useEffect(() => {
+    // Get current user ID from localStorage
+    const userId = localStorage.getItem('currentUserId')
+    setCurrentUserId(userId)
+
+    if (userId) {
+      fetchWatchlist(userId)
+    }
+  }, [])
 
   useEffect(() => {
     fetchLeaderboard()
   }, [dateFilter, regionFilter, stateFilter, rankType])
+
+  const fetchWatchlist = async (userId: string) => {
+    try {
+      const response = await fetch(`/api/watchlist?userId=${userId}`)
+      const data = await response.json()
+      const ids = new Set<string>(data.watchlist.map((item: any) => item.userId as string))
+      setWatchlistIds(ids)
+    } catch (error) {
+      console.error('Failed to fetch watchlist:', error)
+    }
+  }
 
   const fetchLeaderboard = async () => {
     setLoading(true)
@@ -52,6 +75,56 @@ export default function LeaderboardPage() {
       console.error('Failed to fetch leaderboard:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const toggleWatchlist = async (userId: string, name: string, e: React.MouseEvent) => {
+    e.preventDefault() // Prevent navigation to profile
+    e.stopPropagation()
+
+    if (!currentUserId) {
+      alert('Please log in to use watchlist')
+      return
+    }
+
+    const isOnWatchlist = watchlistIds.has(userId)
+
+    try {
+      if (isOnWatchlist) {
+        // Remove from watchlist
+        const response = await fetch(
+          `/api/watchlist?userId=${currentUserId}&watchedUserId=${userId}`,
+          { method: 'DELETE' }
+        )
+
+        if (response.ok) {
+          const newWatchlist = new Set(watchlistIds)
+          newWatchlist.delete(userId)
+          setWatchlistIds(newWatchlist)
+        }
+      } else {
+        // Add to watchlist
+        const response = await fetch('/api/watchlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUserId,
+            watchedUserId: userId,
+          }),
+        })
+
+        if (response.ok) {
+          const newWatchlist = new Set(watchlistIds)
+          newWatchlist.add(userId)
+          setWatchlistIds(newWatchlist)
+        } else {
+          const error = await response.json()
+          alert(error.error || 'Failed to add to watchlist')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to toggle watchlist:', error)
+      alert('Failed to update watchlist')
     }
   }
 
@@ -147,27 +220,30 @@ export default function LeaderboardPage() {
           <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
             <div className="grid grid-cols-12 gap-2 text-sm font-semibold text-gray-600">
               <div className="col-span-1">#</div>
-              <div className="col-span-6">Name</div>
+              <div className="col-span-5">Name</div>
               <div className="col-span-3 text-center">Sales</div>
               <div className="col-span-2 text-center">Cancels</div>
+              <div className="col-span-1 text-center">⭐</div>
             </div>
           </div>
 
           <div className="divide-y divide-gray-200">
             {data?.rankings.map((ranking) => (
-              <Link
+              <div
                 key={ranking.userId}
-                href={`/profile/${ranking.userId}`}
-                className="block px-4 py-4 hover:bg-gray-50 transition-colors active:bg-gray-100"
+                className="px-4 py-4 hover:bg-gray-50 transition-colors"
               >
                 <div className="grid grid-cols-12 gap-2 items-center">
                   <div className="col-span-1 text-lg font-bold text-gray-400">
                     {ranking.rank}
                   </div>
-                  <div className="col-span-6">
+                  <Link
+                    href={`/profile/${ranking.userId}`}
+                    className="col-span-5"
+                  >
                     <p className="font-semibold text-gray-900">{ranking.name}</p>
                     <p className="text-xs text-gray-500">{ranking.team}</p>
-                  </div>
+                  </Link>
                   <div className="col-span-3 text-center">
                     <span className="text-lg font-bold text-moxie-primary">
                       {ranking.sales}
@@ -178,8 +254,47 @@ export default function LeaderboardPage() {
                       {ranking.cancels}
                     </span>
                   </div>
+                  <div className="col-span-1 flex justify-center">
+                    <button
+                      onClick={(e) => toggleWatchlist(ranking.userId, ranking.name, e)}
+                      className={`p-1 rounded-full transition-all ${
+                        watchlistIds.has(ranking.userId)
+                          ? 'text-yellow-500 hover:text-yellow-600'
+                          : 'text-gray-300 hover:text-yellow-500'
+                      }`}
+                      aria-label={
+                        watchlistIds.has(ranking.userId)
+                          ? 'Remove from watchlist'
+                          : 'Add to watchlist'
+                      }
+                    >
+                      {watchlistIds.has(ranking.userId) ? (
+                        <svg
+                          className="w-6 h-6"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                        </svg>
+                      ) : (
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                          />
+                        </svg>
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </div>

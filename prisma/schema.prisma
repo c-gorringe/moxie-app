@@ -26,6 +26,8 @@ model User {
   commissions   Commission[]
   accolades     Accolade[]
   withholdingLimit WithholdingLimit?
+  watchlist     Watchlist[] @relation("UserWatchlist")
+  watchedBy     Watchlist[] @relation("WatchedUser")
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -92,4 +94,17 @@ model WithholdingLimit {
   resetDate       DateTime?
 
   updatedAt       DateTime @updatedAt
+}
+
+model Watchlist {
+  id            String   @id @default(cuid())
+  userId        String   // Who is watching
+  user          User     @relation("UserWatchlist", fields: [userId], references: [id], onDelete: Cascade)
+  watchedUserId String   // Who is being watched
+  watchedUser   User     @relation("WatchedUser", fields: [watchedUserId], references: [id], onDelete: Cascade)
+  addedAt       DateTime @default(now())
+
+  @@unique([userId, watchedUserId])
+  @@index([userId])
+  @@index([watchedUserId])
 }

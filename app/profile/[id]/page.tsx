@@ -37,10 +37,31 @@ export default function ProfilePage() {
   const [data, setData] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'details' | 'accolades'>('details')
+  const [isOnWatchlist, setIsOnWatchlist] = useState(false)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   useEffect(() => {
     fetchProfile()
+
+    // Get current user ID from localStorage
+    const currentUser = localStorage.getItem('currentUserId')
+    setCurrentUserId(currentUser)
+
+    if (currentUser) {
+      checkWatchlistStatus(currentUser)
+    }
   }, [userId])
+
+  const checkWatchlistStatus = async (currentUser: string) => {
+    try {
+      const response = await fetch(`/api/watchlist?userId=${currentUser}`)
+      const data = await response.json()
+      const isWatched = data.watchlist.some((item: any) => item.userId === userId)
+      setIsOnWatchlist(isWatched)
+    } catch (error) {
+      console.error('Failed to check watchlist status:', error)
+    }
+  }
 
   const fetchProfile = async () => {
     setLoading(true)
@@ -78,6 +99,49 @@ export default function ProfilePage() {
     if (diff < 60) return `Active ${diff} min ago`
     if (diff < 1440) return `Active ${Math.floor(diff / 60)} hours ago`
     return 'Offline'
+  }
+
+  const toggleWatchlist = async () => {
+    if (!currentUserId) {
+      alert('Please log in to use watchlist')
+      return
+    }
+
+    try {
+      if (isOnWatchlist) {
+        // Remove from watchlist
+        const response = await fetch(
+          `/api/watchlist?userId=${currentUserId}&watchedUserId=${userId}`,
+          { method: 'DELETE' }
+        )
+
+        if (response.ok) {
+          setIsOnWatchlist(false)
+          alert(`${data?.user.name} removed from watchlist`)
+        }
+      } else {
+        // Add to watchlist
+        const response = await fetch('/api/watchlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: currentUserId,
+            watchedUserId: userId,
+          }),
+        })
+
+        if (response.ok) {
+          setIsOnWatchlist(true)
+          alert(`${data?.user.name} added to watchlist`)
+        } else {
+          const error = await response.json()
+          alert(error.error || 'Failed to add to watchlist')
+        }
+      }
+    } catch (error) {
+      console.error('Failed to toggle watchlist:', error)
+      alert('Failed to update watchlist')
+    }
   }
 
   if (loading) {
@@ -126,15 +190,25 @@ export default function ProfilePage() {
           </p>
 
           {/* Action Buttons */}
-          <div className="flex justify-center space-x-3 mt-6">
-            <button className="px-6 py-2 bg-moxie-primary text-white rounded-lg font-medium hover:bg-opacity-90 transition-colors">
+          <div className="grid grid-cols-2 gap-3 mt-6">
+            <button className="px-4 py-2 bg-moxie-primary text-white rounded-lg font-medium hover:bg-opacity-90 transition-colors">
               📞 Call
             </button>
-            <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+            <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
               💬 Text
             </button>
-            <button className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
+            <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors">
               ✉️ Email
+            </button>
+            <button
+              onClick={toggleWatchlist}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                isOnWatchlist
+                  ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              {isOnWatchlist ? '⭐ On Watchlist' : '👁️ Add to Watchlist'}
             </button>
           </div>
         </div>

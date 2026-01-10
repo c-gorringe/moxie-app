@@ -36,14 +36,26 @@ export async function GET(
 
     const bestDay = Math.max(...Object.values(salesByDay), 0)
 
-    // Calculate quarterly sales (simplified - using last 90 days as a quarter)
-    const lastQuarter = new Date()
-    lastQuarter.setDate(lastQuarter.getDate() - 90)
-    const bestQuarter = allSales.filter(s => s.date >= lastQuarter).length
+    // Group by quarter (YYYY-Q#)
+    const salesByQuarter = allSales.reduce((acc, sale) => {
+      const year = sale.date.getFullYear()
+      const month = sale.date.getMonth()
+      const quarter = Math.floor(month / 3) + 1
+      const key = `${year}-Q${quarter}`
+      acc[key] = (acc[key] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
 
-    // Calculate yearly sales
-    const thisYear = new Date().getFullYear()
-    const bestYear = allSales.filter(s => s.date.getFullYear() === thisYear).length
+    const bestQuarter = Math.max(...Object.values(salesByQuarter), 0)
+
+    // Group by year
+    const salesByYear = allSales.reduce((acc, sale) => {
+      const year = sale.date.getFullYear()
+      acc[year] = (acc[year] || 0) + 1
+      return acc
+    }, {} as Record<string, number>)
+
+    const bestYear = Math.max(...Object.values(salesByYear), 0)
 
     return NextResponse.json({
       user: {
