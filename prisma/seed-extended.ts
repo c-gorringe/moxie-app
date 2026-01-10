@@ -202,20 +202,21 @@ async function main() {
 
   console.log(`✅ Created ${users.length} users`)
 
-  // Date ranges - use actual current date
+  // Date ranges - generate data through end of January 2026 for demo
   const today = new Date() // Current date
+  const endOfJanuary = new Date(2026, 0, 31, 23, 59, 59) // January 31, 2026
   const decemberStart = new Date(today.getFullYear(), today.getMonth() - 1, 1) // Last month
   const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000)
 
-  // Generate sales data from December to today
+  // Generate sales data from December through end of January
   const allSales = []
 
   for (const user of users) {
-    // Random number of sales for each user (20-80 total sales from Dec to now)
-    const totalSales = randomInt(20, 80)
+    // Random number of sales for each user (40-120 total sales from Dec through Jan)
+    const totalSales = randomInt(40, 120)
 
     for (let i = 0; i < totalSales; i++) {
-      const saleDate = randomDate(decemberStart, today)
+      const saleDate = randomDate(decemberStart, endOfJanuary)
       const revenue = randomInt(50, 300)
       const isCanceled = Math.random() < 0.15 // 15% cancel rate
       const isInstall = !isCanceled && Math.random() < 0.7 // 70% have installs
@@ -229,41 +230,45 @@ async function main() {
       })
     }
 
-    // Add more sales for today specifically (8-15 sales today to ensure visible data)
-    const todaySales = randomInt(8, 15)
-    for (let i = 0; i < todaySales; i++) {
-      const todayTime = new Date(today)
-      todayTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
-
-      const revenue = randomInt(50, 300)
-      const isCanceled = Math.random() < 0.1 // Lower cancel rate today
-
-      allSales.push({
-        userId: user.id,
-        date: todayTime,
-        revenue: revenue,
-        isCanceled: isCanceled,
-        isInstall: !isCanceled && Math.random() < 0.8,
-      })
-    }
-
-    // Add even more sales for this week (5-10 per day for last 7 days)
-    for (let dayOffset = 1; dayOffset <= 7; dayOffset++) {
-      const weekSales = randomInt(5, 10)
-      for (let i = 0; i < weekSales; i++) {
-        const weekDate = new Date(today)
-        weekDate.setDate(today.getDate() - dayOffset)
-        weekDate.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
+    // Add consistent daily sales for each day from today through end of January
+    const currentDate = new Date(today)
+    while (currentDate <= endOfJanuary) {
+      const dailySales = randomInt(5, 12) // 5-12 sales per day
+      for (let i = 0; i < dailySales; i++) {
+        const saleTime = new Date(currentDate)
+        saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
 
         const revenue = randomInt(50, 300)
-        const isCanceled = Math.random() < 0.15
+        const isCanceled = Math.random() < 0.12 // 12% cancel rate for recent sales
 
         allSales.push({
           userId: user.id,
-          date: weekDate,
+          date: saleTime,
           revenue: revenue,
           isCanceled: isCanceled,
-          isInstall: !isCanceled && Math.random() < 0.7,
+          isInstall: !isCanceled && Math.random() < 0.75,
+        })
+      }
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+
+    // Add extra sales for the demo week (Jan 18-24) to make it impressive
+    for (let dayOffset = 18; dayOffset <= 24; dayOffset++) {
+      const demoDate = new Date(2026, 0, dayOffset) // January 18-24, 2026
+      const demoSales = randomInt(8, 15) // More sales during demo week
+      for (let i = 0; i < demoSales; i++) {
+        const saleTime = new Date(demoDate)
+        saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
+
+        const revenue = randomInt(50, 300)
+        const isCanceled = Math.random() < 0.08 // Lower cancel rate during demo
+
+        allSales.push({
+          userId: user.id,
+          date: saleTime,
+          revenue: revenue,
+          isCanceled: isCanceled,
+          isInstall: !isCanceled && Math.random() < 0.85,
         })
       }
     }
