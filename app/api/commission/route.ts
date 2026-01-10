@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     // Calculate date range based on period
     const now = new Date()
     let startDate = new Date()
+    let endDate: Date | undefined
     let label = 'This Pay Period'
 
     switch (period) {
@@ -25,6 +26,7 @@ export async function GET(request: NextRequest) {
         break
       case 'prev-pay-period':
         startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999)
         label = 'Previous Pay Period'
         break
       case 'month':
@@ -44,12 +46,15 @@ export async function GET(request: NextRequest) {
         label = 'This Pay Period'
     }
 
+    const dateFilter: any = { gte: startDate }
+    if (endDate) {
+      dateFilter.lte = endDate
+    }
+
     const commissions = await prisma.commission.findMany({
       where: {
         userId,
-        date: {
-          gte: startDate,
-        },
+        date: dateFilter,
       },
       orderBy: { date: 'desc' },
     })
