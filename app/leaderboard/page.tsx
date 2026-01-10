@@ -48,6 +48,10 @@ export default function LeaderboardPage() {
   }, [])
 
   useEffect(() => {
+    // Don't fetch if custom range is selected (will fetch when Apply is clicked)
+    if (dateFilter === 'custom') {
+      return
+    }
     fetchLeaderboard()
   }, [dateFilter, regionFilter, stateFilter, rankType])
 
