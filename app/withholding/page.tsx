@@ -32,15 +32,19 @@ interface WithholdingData {
 export default function WithholdingPage() {
   const [data, setData] = useState<WithholdingData | null>(null)
   const [loading, setLoading] = useState(true)
+  const [dateFilter, setDateFilter] = useState('pay-period')
 
   useEffect(() => {
     fetchWithholding()
-  }, [])
+  }, [dateFilter])
 
   const fetchWithholding = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/withholding')
+      const params = new URLSearchParams({
+        period: dateFilter,
+      })
+      const response = await fetch(`/api/withholding?${params}`)
       const data = await response.json()
       setData(data)
     } catch (error) {
@@ -87,6 +91,21 @@ export default function WithholdingPage() {
           >
             Withholding
           </Link>
+        </div>
+
+        {/* Date Filter */}
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-moxie-primary"
+          >
+            <option value="pay-period">This Pay Period</option>
+            <option value="prev-pay-period">Previous Pay Period</option>
+            <option value="month">Month</option>
+            <option value="quarter">Quarter</option>
+            <option value="year">Year</option>
+          </select>
         </div>
 
         {/* Limit Progress Card */}

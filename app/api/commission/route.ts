@@ -5,6 +5,7 @@ export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     let userId = searchParams.get('userId')
+    const period = searchParams.get('period') || 'pay-period'
 
     // If no userId provided, get first user from database
     if (!userId) {
@@ -12,10 +13,45 @@ export async function GET(request: NextRequest) {
       userId = firstUser?.id || ''
     }
 
+    // Calculate date range based on period
+    const now = new Date()
+    let startDate = new Date()
+    let label = 'This Pay Period'
+
+    switch (period) {
+      case 'pay-period':
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        label = 'This Pay Period'
+        break
+      case 'prev-pay-period':
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        label = 'Previous Pay Period'
+        break
+      case 'month':
+        startDate.setMonth(now.getMonth() - 1)
+        label = 'Last 30 Days'
+        break
+      case 'quarter':
+        startDate.setMonth(now.getMonth() - 3)
+        label = 'Last Quarter'
+        break
+      case 'year':
+        startDate.setFullYear(now.getFullYear() - 1)
+        label = 'Last Year'
+        break
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        label = 'This Pay Period'
+    }
+
     const commissions = await prisma.commission.findMany({
-      where: { userId },
+      where: {
+        userId,
+        date: {
+          gte: startDate,
+        },
+      },
       orderBy: { date: 'desc' },
-      take: 10,
     })
 
     // Calculate summary
@@ -24,8 +60,7 @@ export async function GET(request: NextRequest) {
     const totalPaid = commissions.reduce((sum, c) => sum + Number(c.paidAmount), 0)
     const totalWithheld = commissions.reduce((sum, c) => sum + Number(c.withheldAmount), 0)
 
-    // Get current pay period
-    const now = new Date()
+    // Get current pay period for reference
     const payPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1)
     const payPeriodEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0)
 
@@ -39,7 +74,7 @@ export async function GET(request: NextRequest) {
       payPeriod: {
         start: payPeriodStart,
         end: payPeriodEnd,
-        label: 'This Pay Period',
+        label: label,
       },
       transactions: commissions.map(c => ({
         id: c.id,

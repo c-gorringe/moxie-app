@@ -51,17 +51,24 @@ export default function CommissionPage() {
   const [salesData, setSalesData] = useState<SalesData | null>(null)
   const [loadingSales, setLoadingSales] = useState(false)
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [dateFilter, setDateFilter] = useState('pay-period')
 
   useEffect(() => {
     const userId = localStorage.getItem('currentUserId')
     setCurrentUserId(userId)
-    fetchCommission()
   }, [])
+
+  useEffect(() => {
+    fetchCommission()
+  }, [dateFilter])
 
   const fetchCommission = async () => {
     setLoading(true)
     try {
-      const response = await fetch('/api/commission')
+      const params = new URLSearchParams({
+        period: dateFilter,
+      })
+      const response = await fetch(`/api/commission?${params}`)
       const data = await response.json()
       setData(data)
     } catch (error) {
@@ -143,6 +150,21 @@ export default function CommissionPage() {
           >
             Withholding
           </Link>
+        </div>
+
+        {/* Date Filter */}
+        <div className="bg-white rounded-lg p-4 shadow-sm">
+          <select
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-moxie-primary"
+          >
+            <option value="pay-period">This Pay Period</option>
+            <option value="prev-pay-period">Previous Pay Period</option>
+            <option value="month">Month</option>
+            <option value="quarter">Quarter</option>
+            <option value="year">Year</option>
+          </select>
         </div>
 
         {/* Summary - This Pay Period */}
