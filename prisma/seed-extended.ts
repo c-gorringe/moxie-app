@@ -212,65 +212,36 @@ async function main() {
   const allSales = []
 
   for (const user of users) {
-    // Random number of sales for each user (40-120 total sales from Dec through Jan)
-    const totalSales = randomInt(40, 120)
+    // Generate consistent daily sales for every day from Dec 1 through Jan 31
+    const currentDate = new Date(decemberStart)
 
-    for (let i = 0; i < totalSales; i++) {
-      const saleDate = randomDate(decemberStart, endOfJanuary)
-      const revenue = randomInt(30, 150)
-      const isCanceled = Math.random() < 0.15 // 15% cancel rate
-      const isInstall = !isCanceled && Math.random() < 0.7 // 70% have installs
-
-      allSales.push({
-        userId: user.id,
-        date: saleDate,
-        revenue: revenue,
-        isCanceled: isCanceled,
-        isInstall: isInstall,
-      })
-    }
-
-    // Add consistent daily sales for each day from today through end of January
-    const currentDate = new Date(today)
     while (currentDate <= endOfJanuary) {
-      const dailySales = randomInt(5, 12) // 5-12 sales per day
+      // Determine if this is a demo week day (Jan 18-24)
+      const isDemoWeek = currentDate.getFullYear() === 2026 &&
+                        currentDate.getMonth() === 0 &&
+                        currentDate.getDate() >= 18 &&
+                        currentDate.getDate() <= 24
+
+      // Consistent daily sales: 3-6 normal days, 5-8 during demo week
+      const dailySales = isDemoWeek ? randomInt(5, 8) : randomInt(3, 6)
+
       for (let i = 0; i < dailySales; i++) {
         const saleTime = new Date(currentDate)
         saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
 
         const revenue = randomInt(30, 150)
-        const isCanceled = Math.random() < 0.12 // 12% cancel rate for recent sales
+        const isCanceled = Math.random() < (isDemoWeek ? 0.08 : 0.12) // Lower cancel rate in demo week
 
         allSales.push({
           userId: user.id,
           date: saleTime,
           revenue: revenue,
           isCanceled: isCanceled,
-          isInstall: !isCanceled && Math.random() < 0.75,
+          isInstall: !isCanceled && Math.random() < (isDemoWeek ? 0.85 : 0.75),
         })
       }
+
       currentDate.setDate(currentDate.getDate() + 1)
-    }
-
-    // Add extra sales for the demo week (Jan 18-24) to make it impressive
-    for (let dayOffset = 18; dayOffset <= 24; dayOffset++) {
-      const demoDate = new Date(2026, 0, dayOffset) // January 18-24, 2026
-      const demoSales = randomInt(8, 15) // More sales during demo week
-      for (let i = 0; i < demoSales; i++) {
-        const saleTime = new Date(demoDate)
-        saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
-
-        const revenue = randomInt(30, 150)
-        const isCanceled = Math.random() < 0.08 // Lower cancel rate during demo
-
-        allSales.push({
-          userId: user.id,
-          date: saleTime,
-          revenue: revenue,
-          isCanceled: isCanceled,
-          isInstall: !isCanceled && Math.random() < 0.85,
-        })
-      }
     }
   }
 

@@ -108,14 +108,21 @@ export async function GET(request: NextRequest) {
 
     // Calculate trends (percentage change)
     const calculateTrend = (current: number, previous: number) => {
-      if (previous === 0) return current > 0 ? 100 : 0
-      return Math.round(((current - previous) / previous) * 100)
+      if (previous === 0) {
+        return current > 0 ? 100 : 0
+      }
+      const percentChange = ((current - previous) / previous) * 100
+      // Cap at +/- 999% to avoid extreme values
+      const capped = Math.max(-999, Math.min(999, percentChange))
+      return Math.round(capped)
     }
 
     const salesTrend = calculateTrend(sales, prevSales)
     const revenueTrend = calculateTrend(revenue, prevRevenue)
     const installsTrend = calculateTrend(installs, prevInstalls)
     const cancelsTrend = calculateTrend(cancels, prevCancels)
+
+    console.log(`Trends - Sales: ${salesTrend}%, Revenue: ${revenueTrend}%, Installs: ${installsTrend}%, Cancels: ${cancelsTrend}%`)
 
     // Get all users for leaderboard
     const allUsers = await prisma.user.findMany({
