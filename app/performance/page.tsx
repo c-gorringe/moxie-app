@@ -76,7 +76,7 @@ const TrendIndicator = ({ value, inverse = false }: { value: number; inverse?: b
 export default function PerformancePage() {
   const [data, setData] = useState<PerformanceData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [dateFilter, setDateFilter] = useState('today')
+  const [dateFilter, setDateFilter] = useState('pay-period')
 
   useEffect(() => {
     fetchPerformance()
@@ -149,6 +149,10 @@ export default function PerformancePage() {
             <option value="today">Today</option>
             <option value="week">Week</option>
             <option value="month">Month</option>
+            <option value="quarter">Quarter</option>
+            <option value="year">Year</option>
+            <option value="pay-period">This Pay Period</option>
+            <option value="prev-pay-period">Previous Pay Period</option>
           </select>
         </div>
 

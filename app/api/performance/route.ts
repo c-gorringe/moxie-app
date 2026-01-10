@@ -27,7 +27,25 @@ export async function GET(request: NextRequest) {
       case 'month':
         startDate.setMonth(now.getMonth() - 1)
         break
+      case 'quarter':
+        startDate.setMonth(now.getMonth() - 3)
+        break
+      case 'year':
+        startDate.setFullYear(now.getFullYear() - 1)
+        break
+      case 'pay-period':
+        // This pay period = start of current month
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
+        startDate.setHours(0, 0, 0, 0)
+        break
+      case 'prev-pay-period':
+        // Previous pay period = all of last month
+        startDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        startDate.setHours(0, 0, 0, 0)
+        break
       default:
+        // Default to pay period
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1)
         startDate.setHours(0, 0, 0, 0)
     }
 
@@ -58,10 +76,37 @@ export async function GET(request: NextRequest) {
         previousEndDate = new Date(startDate)
         previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
         break
-      default:
-        // Default to yesterday
+      case 'quarter':
+        // Previous period = previous 3 months
         previousStartDate = new Date(startDate)
-        previousStartDate.setDate(previousStartDate.getDate() - 1)
+        previousStartDate.setMonth(previousStartDate.getMonth() - 3)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
+        break
+      case 'year':
+        // Previous period = previous year
+        previousStartDate = new Date(startDate)
+        previousStartDate.setFullYear(previousStartDate.getFullYear() - 1)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
+        break
+      case 'pay-period':
+        // Previous period = previous pay period (last month)
+        previousStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+        previousStartDate.setHours(0, 0, 0, 0)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
+        break
+      case 'prev-pay-period':
+        // Previous period = 2 months ago
+        previousStartDate = new Date(now.getFullYear(), now.getMonth() - 2, 1)
+        previousStartDate.setHours(0, 0, 0, 0)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
+        break
+      default:
+        // Default to previous pay period
+        previousStartDate = new Date(now.getFullYear(), now.getMonth() - 1, 1)
         previousStartDate.setHours(0, 0, 0, 0)
         previousEndDate = new Date(startDate)
         previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
