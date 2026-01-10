@@ -294,9 +294,9 @@ async function main() {
       const accountsSold = daySales.filter(s => !s.isCanceled).length
       const earnedAmount = daySales
         .filter(s => !s.isCanceled)
-        .reduce((sum, s) => sum + s.revenue, 0) * 0.15 // 15% commission
+        .reduce((sum, s) => sum + s.revenue, 0) * 0.50 // 50% commission
 
-      const withheldAmount = earnedAmount * 0.25 // 25% withholding
+      const withheldAmount = earnedAmount * 0.20 // 20% withholding
       const paidAmount = earnedAmount - withheldAmount
 
       const commissionDate = new Date(dateKey)
