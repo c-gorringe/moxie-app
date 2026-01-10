@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
           const saleTime = new Date(currentDate)
           saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
 
-          const revenue = randomInt(30, 150)
+          const revenue = randomInt(100, 200)
           const isCanceled = Math.random() < (isDemoWeek ? 0.08 : 0.12)
 
           allSales.push({
@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
         const accountsSold = daySales.filter(s => !s.isCanceled).length
         const earnedAmount = daySales
           .filter(s => !s.isCanceled)
-          .reduce((sum, s) => sum + s.revenue, 0) * 0.25
+          .reduce((sum, s) => sum + s.revenue, 0) * 0.50
 
         const withheldAmount = earnedAmount * 0.20
         const paidAmount = earnedAmount - withheldAmount

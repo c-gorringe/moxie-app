@@ -229,7 +229,7 @@ async function main() {
         const saleTime = new Date(currentDate)
         saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
 
-        const revenue = randomInt(30, 150)
+        const revenue = randomInt(100, 200)
         const isCanceled = Math.random() < (isDemoWeek ? 0.08 : 0.12) // Lower cancel rate in demo week
 
         allSales.push({
@@ -270,7 +270,7 @@ async function main() {
       const accountsSold = daySales.filter(s => !s.isCanceled).length
       const earnedAmount = daySales
         .filter(s => !s.isCanceled)
-        .reduce((sum, s) => sum + s.revenue, 0) * 0.25 // 25% commission
+        .reduce((sum, s) => sum + s.revenue, 0) * 0.50 // 50% commission
 
       const withheldAmount = earnedAmount * 0.20 // 20% withholding
       const paidAmount = earnedAmount - withheldAmount
