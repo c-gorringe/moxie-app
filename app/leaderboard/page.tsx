@@ -144,19 +144,46 @@ export default function LeaderboardPage() {
       <MobileHeader />
 
       <main className="max-w-7xl mx-auto px-4 py-6 space-y-6">
-        {/* Top Performer */}
-        {data?.topPerformer && (
-          <div className="bg-gradient-to-r from-moxie-primary to-moxie-secondary rounded-lg p-6 text-white">
-            <h2 className="text-lg font-semibold mb-2">⭐ Feature Top Performer</h2>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">{data.topPerformer.name}</p>
-                <p className="text-sm opacity-90">{data.topPerformer.team}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-3xl font-bold">{data.topPerformer.sales}</p>
-                <p className="text-sm">sales</p>
-              </div>
+        {/* Top 3 Podium */}
+        {data?.rankings && data.rankings.length > 0 && (
+          <div className="bg-gradient-to-br from-moxie-primary to-moxie-secondary rounded-lg p-6 text-white">
+            <h2 className="text-lg font-semibold mb-4">🏆 Top Performers</h2>
+
+            {/* Podium Layout */}
+            <div className="grid grid-cols-3 gap-3">
+              {/* 2nd Place */}
+              {data.rankings[1] && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <div className="text-3xl mb-1">🥈</div>
+                  <p className="text-xs opacity-75 mb-1">2nd Place</p>
+                  <p className="font-bold text-sm truncate">{data.rankings[1].name}</p>
+                  <p className="text-2xl font-bold mt-2">{data.rankings[1].sales}</p>
+                  <p className="text-xs opacity-75">sales</p>
+                </div>
+              )}
+
+              {/* 1st Place - Taller */}
+              {data.rankings[0] && (
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-center -mt-2">
+                  <div className="text-4xl mb-1">🥇</div>
+                  <p className="text-xs opacity-75 mb-1">1st Place</p>
+                  <p className="font-bold truncate">{data.rankings[0].name}</p>
+                  <p className="text-xs opacity-75 truncate mt-1">{data.rankings[0].team}</p>
+                  <p className="text-3xl font-bold mt-2">{data.rankings[0].sales}</p>
+                  <p className="text-xs opacity-75">sales</p>
+                </div>
+              )}
+
+              {/* 3rd Place */}
+              {data.rankings[2] && (
+                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3 text-center">
+                  <div className="text-3xl mb-1">🥉</div>
+                  <p className="text-xs opacity-75 mb-1">3rd Place</p>
+                  <p className="font-bold text-sm truncate">{data.rankings[2].name}</p>
+                  <p className="text-2xl font-bold mt-2">{data.rankings[2].sales}</p>
+                  <p className="text-xs opacity-75">sales</p>
+                </div>
+              )}
             </div>
           </div>
         )}
