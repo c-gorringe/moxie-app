@@ -33,24 +33,38 @@ export async function GET(request: NextRequest) {
 
     // Calculate previous period for comparison
     let previousStartDate = new Date()
-    let previousEndDate = new Date(startDate)
-    previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
+    let previousEndDate = new Date()
 
     switch (dateFilter) {
       case 'today':
+        // Previous period = yesterday
         previousStartDate = new Date(startDate)
         previousStartDate.setDate(previousStartDate.getDate() - 1)
         previousStartDate.setHours(0, 0, 0, 0)
-        previousEndDate.setHours(23, 59, 59, 999)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
         break
       case 'week':
+        // Previous period = previous 7 days
         previousStartDate = new Date(startDate)
         previousStartDate.setDate(previousStartDate.getDate() - 7)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
         break
       case 'month':
+        // Previous period = previous month
         previousStartDate = new Date(startDate)
         previousStartDate.setMonth(previousStartDate.getMonth() - 1)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
         break
+      default:
+        // Default to yesterday
+        previousStartDate = new Date(startDate)
+        previousStartDate.setDate(previousStartDate.getDate() - 1)
+        previousStartDate.setHours(0, 0, 0, 0)
+        previousEndDate = new Date(startDate)
+        previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
     }
 
     // Get user with sales for current and previous period
@@ -62,8 +76,13 @@ export async function GET(request: NextRequest) {
     })
 
     if (!user) {
+      console.error(`Performance API: User not found with id: ${userId}`)
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
+
+    console.log(`Performance API: Found user ${user.name}, ${user.sales.length} total sales`)
+    console.log(`Date range - Current: ${startDate.toISOString()} to now`)
+    console.log(`Date range - Previous: ${previousStartDate.toISOString()} to ${previousEndDate.toISOString()}`)
 
     // Filter sales for current period
     const currentSales = user.sales.filter(s => s.date >= startDate)
