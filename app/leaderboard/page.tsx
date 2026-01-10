@@ -33,6 +33,9 @@ export default function LeaderboardPage() {
   const [rankType, setRankType] = useState('individual')
   const [watchlistIds, setWatchlistIds] = useState<Set<string>>(new Set())
   const [currentUserId, setCurrentUserId] = useState<string | null>(null)
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
+  const [customStartDate, setCustomStartDate] = useState('')
+  const [customEndDate, setCustomEndDate] = useState('')
 
   useEffect(() => {
     // Get current user ID from localStorage
@@ -68,6 +71,13 @@ export default function LeaderboardPage() {
         state: stateFilter,
         rankType,
       })
+
+      // Add custom date range if selected
+      if (dateFilter === 'custom' && customStartDate && customEndDate) {
+        params.set('startDate', customStartDate)
+        params.set('endDate', customEndDate)
+      }
+
       const response = await fetch(`/api/leaderboard?${params}`)
       const data = await response.json()
       setData(data)
@@ -75,6 +85,22 @@ export default function LeaderboardPage() {
       console.error('Failed to fetch leaderboard:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleDateFilterChange = (value: string) => {
+    setDateFilter(value)
+    if (value === 'custom') {
+      setShowCustomDatePicker(true)
+    } else {
+      setShowCustomDatePicker(false)
+    }
+  }
+
+  const applyCustomDateRange = () => {
+    if (customStartDate && customEndDate) {
+      fetchLeaderboard()
+      setShowCustomDatePicker(false)
     }
   }
 
@@ -194,12 +220,13 @@ export default function LeaderboardPage() {
           <div className="grid grid-cols-2 gap-3">
             <select
               value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
+              onChange={(e) => handleDateFilterChange(e.target.value)}
               className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-moxie-primary"
             >
               <option value="today">📅 Today</option>
               <option value="week">📅 Week</option>
               <option value="month">📅 Month</option>
+              <option value="custom">📅 Custom Range</option>
             </select>
 
             <select
@@ -331,6 +358,65 @@ export default function LeaderboardPage() {
           Pull down to refresh
         </p>
       </main>
+
+      {/* Custom Date Range Modal */}
+      {showCustomDatePicker && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+          onClick={() => setShowCustomDatePicker(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Select Date Range
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Start Date
+                </label>
+                <input
+                  type="date"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-moxie-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  End Date
+                </label>
+                <input
+                  type="date"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-moxie-primary"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowCustomDatePicker(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={applyCustomDateRange}
+                disabled={!customStartDate || !customEndDate}
+                className="flex-1 px-4 py-2 bg-moxie-primary text-white rounded-lg font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -8,26 +8,36 @@ export async function GET(request: NextRequest) {
     const regionFilter = searchParams.get('region') || 'all'
     const stateFilter = searchParams.get('state') || 'all'
     const rankType = searchParams.get('rankType') || 'individual'
+    const customStartDate = searchParams.get('startDate')
+    const customEndDate = searchParams.get('endDate')
 
     // Calculate date range
     const now = new Date()
     let startDate = new Date()
+    let endDate = new Date()
 
-    switch (dateFilter) {
-      case 'today':
-        startDate.setHours(0, 0, 0, 0)
-        break
-      case 'week':
-        startDate.setDate(now.getDate() - 7)
-        break
-      case 'month':
-        startDate.setMonth(now.getMonth() - 1)
-        break
-      case 'year':
-        startDate.setFullYear(now.getFullYear() - 1)
-        break
-      default:
-        startDate.setHours(0, 0, 0, 0)
+    if (dateFilter === 'custom' && customStartDate && customEndDate) {
+      startDate = new Date(customStartDate)
+      startDate.setHours(0, 0, 0, 0)
+      endDate = new Date(customEndDate)
+      endDate.setHours(23, 59, 59, 999)
+    } else {
+      switch (dateFilter) {
+        case 'today':
+          startDate.setHours(0, 0, 0, 0)
+          break
+        case 'week':
+          startDate.setDate(now.getDate() - 7)
+          break
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1)
+          break
+        case 'year':
+          startDate.setFullYear(now.getFullYear() - 1)
+          break
+        default:
+          startDate.setHours(0, 0, 0, 0)
+      }
     }
 
     // Build user filter
@@ -43,15 +53,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Build sales date filter
+    const salesDateFilter: any = {
+      gte: startDate,
+    }
+
+    // Add end date for custom range
+    if (dateFilter === 'custom' && customEndDate) {
+      salesDateFilter.lte = endDate
+    }
+
     // Get filtered users with their sales
     const users = await prisma.user.findMany({
       where: userFilter,
       include: {
         sales: {
           where: {
-            date: {
-              gte: startDate,
-            },
+            date: salesDateFilter,
           },
         },
       },

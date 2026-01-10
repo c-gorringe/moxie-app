@@ -17,6 +17,12 @@ interface PerformanceData {
     installs: number
     cancels: number
   }
+  trends: {
+    sales: number
+    revenue: number
+    installs: number
+    cancels: number
+  }
   ranking: {
     currentRank: number
     topPerformers: Array<{
@@ -27,6 +33,44 @@ interface PerformanceData {
       cancels: number
     }>
   }
+}
+
+const TrendIndicator = ({ value, inverse = false }: { value: number; inverse?: boolean }) => {
+  const isPositive = inverse ? value < 0 : value > 0
+  const isNegative = inverse ? value > 0 : value < 0
+  const color = isPositive ? 'text-green-600' : isNegative ? 'text-red-600' : 'text-gray-400'
+
+  if (value === 0) {
+    return (
+      <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+        <span>→</span>
+        <span>0%</span>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`flex items-center gap-1 text-xs font-medium mt-1 ${color}`}>
+      {value > 0 ? (
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L11 7.414V15a1 1 0 11-2 0V7.414L6.707 9.707a1 1 0 01-1.414 0z"
+            clipRule="evenodd"
+          />
+        </svg>
+      ) : (
+        <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            fillRule="evenodd"
+            d="M14.707 10.293a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 111.414-1.414L9 12.586V5a1 1 0 012 0v7.586l2.293-2.293a1 1 0 011.414 0z"
+            clipRule="evenodd"
+          />
+        </svg>
+      )}
+      <span>{Math.abs(value)}%</span>
+    </div>
+  )
 }
 
 export default function PerformancePage() {
@@ -114,6 +158,7 @@ export default function PerformancePage() {
           <div className="bg-white rounded-lg p-6 shadow-sm border-2 border-moxie-primary">
             <p className="text-sm font-medium text-gray-600 mb-1">Sales</p>
             <p className="text-4xl font-bold text-moxie-primary">{data?.metrics.sales}</p>
+            {data?.trends && <TrendIndicator value={data.trends.sales} />}
           </div>
 
           {/* Revenue Card */}
@@ -122,18 +167,21 @@ export default function PerformancePage() {
             <p className="text-4xl font-bold text-green-600">
               ${data?.metrics.revenue.toLocaleString()}
             </p>
+            {data?.trends && <TrendIndicator value={data.trends.revenue} />}
           </div>
 
           {/* Installs Card */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <p className="text-sm font-medium text-gray-600 mb-1">Installs</p>
             <p className="text-4xl font-bold text-blue-600">{data?.metrics.installs}</p>
+            {data?.trends && <TrendIndicator value={data.trends.installs} />}
           </div>
 
           {/* Cancels Card */}
           <div className="bg-white rounded-lg p-6 shadow-sm">
             <p className="text-sm font-medium text-gray-600 mb-1">Cancels</p>
             <p className="text-4xl font-bold text-red-600">{data?.metrics.cancels}</p>
+            {data?.trends && <TrendIndicator value={data.trends.cancels} inverse />}
           </div>
         </div>
 

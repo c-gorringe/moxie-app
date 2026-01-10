@@ -31,17 +31,33 @@ export async function GET(request: NextRequest) {
         startDate.setHours(0, 0, 0, 0)
     }
 
-    // Get user with sales
+    // Calculate previous period for comparison
+    let previousStartDate = new Date()
+    let previousEndDate = new Date(startDate)
+    previousEndDate.setMilliseconds(previousEndDate.getMilliseconds() - 1)
+
+    switch (dateFilter) {
+      case 'today':
+        previousStartDate = new Date(startDate)
+        previousStartDate.setDate(previousStartDate.getDate() - 1)
+        previousStartDate.setHours(0, 0, 0, 0)
+        previousEndDate.setHours(23, 59, 59, 999)
+        break
+      case 'week':
+        previousStartDate = new Date(startDate)
+        previousStartDate.setDate(previousStartDate.getDate() - 7)
+        break
+      case 'month':
+        previousStartDate = new Date(startDate)
+        previousStartDate.setMonth(previousStartDate.getMonth() - 1)
+        break
+    }
+
+    // Get user with sales for current and previous period
     const user = await prisma.user.findUnique({
       where: { id: userId },
       include: {
-        sales: {
-          where: {
-            date: {
-              gte: startDate,
-            },
-          },
-        },
+        sales: true,
       },
     })
 
@@ -49,13 +65,38 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    // Calculate metrics
-    const sales = user.sales.filter(s => !s.isCanceled).length
-    const revenue = user.sales
+    // Filter sales for current period
+    const currentSales = user.sales.filter(s => s.date >= startDate)
+    const previousSales = user.sales.filter(
+      s => s.date >= previousStartDate && s.date <= previousEndDate
+    )
+
+    // Calculate current period metrics
+    const sales = currentSales.filter(s => !s.isCanceled).length
+    const revenue = currentSales
       .filter(s => !s.isCanceled)
       .reduce((sum, sale) => sum + Number(sale.revenue), 0)
-    const installs = user.sales.filter(s => s.isInstall && !s.isCanceled).length
-    const cancels = user.sales.filter(s => s.isCanceled).length
+    const installs = currentSales.filter(s => s.isInstall && !s.isCanceled).length
+    const cancels = currentSales.filter(s => s.isCanceled).length
+
+    // Calculate previous period metrics
+    const prevSales = previousSales.filter(s => !s.isCanceled).length
+    const prevRevenue = previousSales
+      .filter(s => !s.isCanceled)
+      .reduce((sum, sale) => sum + Number(sale.revenue), 0)
+    const prevInstalls = previousSales.filter(s => s.isInstall && !s.isCanceled).length
+    const prevCancels = previousSales.filter(s => s.isCanceled).length
+
+    // Calculate trends (percentage change)
+    const calculateTrend = (current: number, previous: number) => {
+      if (previous === 0) return current > 0 ? 100 : 0
+      return Math.round(((current - previous) / previous) * 100)
+    }
+
+    const salesTrend = calculateTrend(sales, prevSales)
+    const revenueTrend = calculateTrend(revenue, prevRevenue)
+    const installsTrend = calculateTrend(installs, prevInstalls)
+    const cancelsTrend = calculateTrend(cancels, prevCancels)
 
     // Get all users for leaderboard
     const allUsers = await prisma.user.findMany({
@@ -106,6 +147,12 @@ export async function GET(request: NextRequest) {
         revenue: Math.round(revenue),
         installs,
         cancels,
+      },
+      trends: {
+        sales: salesTrend,
+        revenue: revenueTrend,
+        installs: installsTrend,
+        cancels: cancelsTrend,
       },
       ranking: {
         currentRank: userRank,

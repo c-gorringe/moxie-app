@@ -217,7 +217,7 @@ async function main() {
 
     for (let i = 0; i < totalSales; i++) {
       const saleDate = randomDate(decemberStart, endOfJanuary)
-      const revenue = randomInt(50, 300)
+      const revenue = randomInt(30, 150)
       const isCanceled = Math.random() < 0.15 // 15% cancel rate
       const isInstall = !isCanceled && Math.random() < 0.7 // 70% have installs
 
@@ -238,7 +238,7 @@ async function main() {
         const saleTime = new Date(currentDate)
         saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
 
-        const revenue = randomInt(50, 300)
+        const revenue = randomInt(30, 150)
         const isCanceled = Math.random() < 0.12 // 12% cancel rate for recent sales
 
         allSales.push({
@@ -260,7 +260,7 @@ async function main() {
         const saleTime = new Date(demoDate)
         saleTime.setHours(randomInt(8, 18), randomInt(0, 59), randomInt(0, 59))
 
-        const revenue = randomInt(50, 300)
+        const revenue = randomInt(30, 150)
         const isCanceled = Math.random() < 0.08 // Lower cancel rate during demo
 
         allSales.push({
@@ -299,7 +299,7 @@ async function main() {
       const accountsSold = daySales.filter(s => !s.isCanceled).length
       const earnedAmount = daySales
         .filter(s => !s.isCanceled)
-        .reduce((sum, s) => sum + s.revenue, 0) * 0.50 // 50% commission
+        .reduce((sum, s) => sum + s.revenue, 0) * 0.25 // 25% commission
 
       const withheldAmount = earnedAmount * 0.20 // 20% withholding
       const paidAmount = earnedAmount - withheldAmount
