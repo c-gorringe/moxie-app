@@ -248,6 +248,33 @@ This is a project template. Feel free to:
 
 MIT
 
+## Future Enhancements
+
+Features and improvements planned for future releases:
+
+### Pay Period Updates
+- [ ] **Bi-Weekly Pay Periods** - Update pay period calculations from monthly to every two weeks
+  - Currently: Pay periods align with calendar months (1st to end of month)
+  - Planned: Bi-weekly pay periods (every 2 weeks)
+  - Files to update:
+    - `/app/api/commission/route.ts` - Date range calculations
+    - `/app/api/withholding/route.ts` - Date range calculations
+    - `/app/commission/page.tsx` - Filter labels
+    - `/app/withholding/page.tsx` - Filter labels
+  - Additional considerations:
+    - Define pay period start date (e.g., company fiscal start)
+    - Handle edge cases for year transitions
+    - Update database schema if needed to store pay period metadata
+
+### Commission Rate Improvements
+- [ ] **Variable Commission Rates** - Support different commission rates per product and sales rep
+  - Currently: Fixed 50% commission rate, 20% withholding
+  - Planned: Product-based and rep-based commission structures
+  - Database changes needed:
+    - Add `Product` table with commission rate field
+    - Link sales to products
+    - Add commission rate override field to User model
+
 ## Questions?
 
 For issues or questions, please create an issue in the repository.
